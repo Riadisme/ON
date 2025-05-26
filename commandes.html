@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vos commandes - AZOUR & ONOMO</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      box-sizing: border-box;
+      padding-top: 80px;
+    }
+    .banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background-color: white;
+      padding: 0 30px;
+      box-sizing: border-box;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .banner img {
+      max-height: 50px;
+      height: auto;
+    }
+    .banner h1 {
+      font-size: 2.5em;
+      margin: 0;
+      font-weight: bold;
+      color: black;
+    }
+    /* Bouton Retour */
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1100;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .back-button img {
+      height: 30px;
+      width: 30px;
+      user-select: none;
+      pointer-events: none;
+    }
+    h2 {
+      margin-top: 100px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 2em;
+      color: #145214;
+    }
+    table {
+      margin: 20px auto 50px;
+      border-collapse: collapse;
+      width: 80%;
+      max-width: 700px;
+      background-color: white;
+      color: #145214;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    th, td {
+      padding: 12px 20px;
+      text-align: center;
+      border-bottom: 1px solid #145214;
+      font-weight: normal;
+    }
+    th {
+      background-color: #145214;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    /* Ligne total */
+    .total-row td {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #000;
+      background-color: #e0e0e0;
+    }
+    /* Boutons supprimer */
+    .btn-supprimer {
+      background-color: #e74c3c;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn-supprimer:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <img src="logo.png" alt="Logo AZOUR & ONOMO" />
+    <h1>AZOUR & ONOMO</h1>
+  </div>
+
+  <button class="back-button" title="Retour" onclick="window.location.href='index.html'">
+    <img src="Retour.png" alt="Retour" />
+  </button>
+
+  <h2>Vos commandes</h2>
+
+  <table id="tableCommandes">
+    <thead>
+      <tr>
+        <th>Plat</th>
+        <th>Prix</th>
+        <th>Supprimer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Lignes ajoutées via JS -->
+    </tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td>Total</td>
+        <td id="totalPrix">0 MAD</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <script>
+    let commandes = JSON.parse(localStorage.getItem('commandes')) || [];
+
+    const tbody = document.querySelector('#tableCommandes tbody');
+    const totalPrixElem = document.getElementById('totalPrix');
+
+    function afficherCommandes() {
+      tbody.innerHTML = ''; // Vider le tableau
+
+      if (commandes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="color:#555; font-style: italic;">Aucune commande pour le moment.</td></tr>`;
+        totalPrixElem.textContent = '0 MAD';
+        return;
+      }
+
+      let total = 0;
+
+      commandes.forEach((commande, index) => {
+        // Extraire le nombre de MAD de la chaîne prix, gérer prix comme "À partir de 90 MAD" en ignorant texte
+        let prixNumber = parseFloat(commande.prix.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+
+        total += prixNumber;
+
+        const tr = document.createElement('tr');
+
+        const tdPlat = document.createElement('td');
+        tdPlat.textContent = commande.nom;
+        tr.appendChild(tdPlat);
+
+        const tdPrix = document.createElement('td');
+        tdPrix.textContent = commande.prix;
+        tr.appendChild(tdPrix);
+
+        const tdSuppr = document.createElement('td');
+        const btnSuppr = document.createElement('button');
+        btnSuppr.textContent = 'Supprimer';
+        btnSuppr.className = 'btn-supprimer';
+        btnSuppr.onclick = () => {
+          supprimerCommande(index);
+        };
+        tdSuppr.appendChild(btnSuppr);
+        tr.appendChild(tdSuppr);
+
+        tbody.appendChild(tr);
+      });
+
+      totalPrixElem.textContent = total.toFixed(2) + " MAD";
+    }
+
+    function supprimerCommande(index) {
+      commandes.splice(index, 1);
+      localStorage.setItem('commandes', JSON.stringify(commandes));
+      afficherCommandes();
+    }
+
+    afficherCommandes();
+  </script>
+</body>
+</html>

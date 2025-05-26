@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>AZOUR & ONOMO</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('background.jpg') no-repeat center center/cover;
+    }
+
+    .banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background-color: white;
+      z-index: 1000;
+    }
+
+    .banner img {
+      max-height: 50px;
+    }
+
+    .banner h1 {
+      font-size: 2em;
+      color: black;
+      margin: 0;
+    }
+
+    .btn-container {
+      margin-top: 90px;
+      text-align: center;
+    }
+
+    .btn {
+      background-color: #145214;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      margin: 8px;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn.active {
+      background-color: #2ecc71;
+      color: black;
+    }
+
+    #menuDisplay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .plat-btn {
+      background-color: #145214;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      margin: 10px;
+      cursor: pointer;
+      width: 60%;
+      font-size: 1em;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .plat-btn:hover {
+      background-color: #ccc;
+      color: #000;
+    }
+
+    .cmd-button {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cmd-button img {
+      width: 30px;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .notif {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      font-size: 0.8em;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <img src="logo.png" alt="logo" />
+    <h1>AZOUR & ONOMO</h1>
+  </div>
+
+  <div class="btn-container">
+    <button class="btn" onclick="afficherMenu('entrees', this)">Entrées</button>
+    <button class="btn" onclick="afficherMenu('plats', this)">Plats Principaux</button>
+    <button class="btn" onclick="afficherMenu('desserts', this)">Desserts</button>
+    <button class="btn" onclick="afficherMenu('boissons', this)">Boissons</button>
+  </div>
+
+  <div id="menuDisplay"></div>
+
+  <button class="cmd-button" onclick="window.location.href='commandes.html'">
+    <img src="cmd.png" alt="Commandes">
+    <div id="notif" class="notif" style="display: none;">0</div>
+  </button>
+
+  <script>
+    const menus = {
+      entrees: [
+        { nom: "Foie gras de canard", prix: "180 MAD" },
+        { nom: "Tartare de saumon", prix: "140 MAD" }
+      ],
+      plats: [
+        { nom: "Filet de bœuf", prix: "320 MAD" },
+        { nom: "Magret de canard", prix: "290 MAD" }
+      ],
+      desserts: [
+        { nom: "Fondant chocolat", prix: "110 MAD" },
+        { nom: "Tarte aux pommes", prix: "100 MAD" }
+      ],
+      boissons: [
+        { nom: "Eau", prix: "30 MAD" },
+        { nom: "Jus", prix: "45 MAD" }
+      ]
+    };
+
+    let commandes = JSON.parse(localStorage.getItem('commandes')) || [];
+    updateNotif();
+
+    function afficherMenu(categorie, btn) {
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const display = document.getElementById('menuDisplay');
+      display.innerHTML = "";
+
+      menus[categorie].forEach(plat => {
+        const button = document.createElement('button');
+        button.className = 'plat-btn';
+        button.innerText = `${plat.nom} - ${plat.prix}`;
+        button.onclick = () => {
+          if(commandes.some(c => c.nom === plat.nom)) {
+            alert("Ce plat est déjà ajouté.");
+            return;
+          }
+          commandes.push(plat);
+          localStorage.setItem('commandes', JSON.stringify(commandes));
+          updateNotif();
+        };
+        display.appendChild(button);
+      });
+    }
+
+    function updateNotif() {
+      const notif = document.getElementById('notif');
+      if (commandes.length > 0) {
+        notif.innerText = commandes.length;
+        notif.style.display = 'flex';
+      } else {
+        notif.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
